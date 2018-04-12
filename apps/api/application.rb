@@ -12,6 +12,10 @@ module Api
 
       routes 'config/routes'
 
+      default_request_format :json
+      default_response_format :json
+      body_parsers :json
+
       security.x_frame_options 'DENY'
       security.x_content_type_options 'nosniff'
       # security.x_xss_protection '1; mode=block'
