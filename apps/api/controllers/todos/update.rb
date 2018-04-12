@@ -8,15 +8,18 @@ module Api::Controllers::Todos
       optional(:completed).filled(:bool?)
     end
 
+    def initialize(interactor: UpdateTodo.new)
+      @interactor = interactor
+    end
+
     def call(params)
-      return status(400) unless params.valid?
+      result = @interactor.call(params)
 
-      repo = TodoRepository.new
-      todo_params = { text: params[:text], completed: params[:completed] }.compact
-
-      todo = repo.update(params[:id], todo_params)
-
-      status 201, JSON.dump(todo.to_hash)
+      if result.successful?
+        status 201, JSON.dump(data: result.todo.to_hash)
+      else
+        status 201, JSON.dump(errors: result.errors + params.error_messages)
+      end
     end
   end
 end

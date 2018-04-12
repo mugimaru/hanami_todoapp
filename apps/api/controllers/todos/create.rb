@@ -6,10 +6,18 @@ module Api::Controllers::Todos
       required(:text).filled
     end
 
+    def initialize(interactor: CreateTodo.new)
+      @interactor = interactor
+    end
+
     def call(params)
-      repo = TodoRepository.new
-      todo = repo.create(Todo.new(text: params[:text]))
-      status 201, JSON.dump(todo.to_hash)
+      result = @interactor.call(params)
+
+      if result.successful?
+        status 201, JSON.dump(data: result.todo.to_hash)
+      else
+        status 201, JSON.dump(errors: result.errors + params.error_messages)
+      end
     end
   end
 end

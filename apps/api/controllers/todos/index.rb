@@ -7,7 +7,7 @@ module Api::Controllers::Todos
       todos = repo.active.to_a
 
       self.format = :json
-      status 201, JSON.dump(todos.map(&:to_hash))
+      status 201, JSON.dump(data: todos.map(&:to_hash))
     end
   end
 end
