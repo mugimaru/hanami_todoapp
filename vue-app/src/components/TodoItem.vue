@@ -1,11 +1,11 @@
 <template>
-<li :class="todo.completed ? 'completed' : ''">
+<li :class="{ completed: todo.completed, editing: edit }" @dblclick="startEdit">
   <div class="view">
     <input class="toggle" type="checkbox" v-model="todo.completed">
     <label>{{todo.text}}</label>
-    <button class="destroy"></button>
+    <button class="destroy" @click="$emit('delete')"></button>
   </div>
-  <input class="edit" value="Create a TodoMVC template">
+  <input class="edit" v-model="editText" @keyup.enter="doneEdit" @keyup.esc="cancelEdit">
 </li>
 </template>
 
@@ -14,12 +14,28 @@
 export default {
   name: 'TodoItem',
   data () {
-    return {}
+    return {
+      edit: false,
+      editText: ''
+    }
   },
   props: {
     todo: {}
   },
   methods: {
+    startEdit () {
+      this.editText = this.todo.text
+      this.edit = true
+    },
+    doneEdit () {
+      this.todo.text = this.editText
+      this.edit = false
+      this.editText = ''
+    },
+    cancelEdit () {
+      this.edit = false
+      this.editText = ''
+    }
   }
 }
 </script>

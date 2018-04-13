@@ -3,43 +3,33 @@
     <section class="todoapp">
       <header class="header">
         <h1>todos</h1>
-        <input class="new-todo" placeholder="What needs to be done?" autofocus>
+        <input class="new-todo" placeholder="What needs to be done?" autofocus v-model="newTodoText" @keydown.enter="addTodo">
       </header>
 
-      <!-- This section should be hidden by default and shown when there are todos -->
       <section class="main" v-show="todos.length > 0">
-        <input id="toggle-all" class="toggle-all" type="checkbox" @click="markAllAsCompleted">
+        <input id="toggle-all" class="toggle-all" type="checkbox" v-model="toggleAllFlag" @click="toggleAll">
         <label for="toggle-all">Mark all as complete</label>
         <ul class="todo-list">
-          <todo-item v-for="(todo, i) in todos" :key="i" :todo="todo" />
+          <todo-item v-for="(todo, i) in filteredTodos" :key="i" :todo="todo" @delete="deleteTodo(i)" />
         </ul>
       </section>
 
-      <!-- This footer should hidden by default and shown when there are todos -->
       <footer class="footer" v-show="todos.length > 0">
-        <!-- This should be `0 items left` by default -->
         <span class="todo-count"><strong>{{ todos.length }}</strong> item left</span>
-        <!-- Remove this if you don't implement routing -->
         <ul class="filters">
-          <li>
-            <a class="selected" href="#/">All</a>
-          </li>
-          <li>
-            <a href="#/active">Active</a>
-          </li>
-          <li>
-            <a href="#/completed">Completed</a>
+          <li v-for="f in filters" :key="f">
+            <a :class="filter == f ? 'selected' : ''" href="#" @click.stop="filter = f">
+              {{ f | capitalize }}
+            </a>
           </li>
         </ul>
-        <!-- Hidden if no completed items are left ↓ -->
-        <button class="clear-completed">Clear completed</button>
+
+        <button class="clear-completed" @click="clearCompleted" v-show="anyCompleted">Clear completed</button>
       </footer>
     </section>
     <footer class="info">
       <p>Double-click to edit a todo</p>
-      <!-- Remove the below line ↓ -->
       <p>Template by <a href="http://sindresorhus.com">Sindre Sorhus</a></p>
-      <!-- Change this out with your name and url ↓ -->
       <p>Created by <a href="http://todomvc.com">you</a></p>
       <p>Part of <a href="http://todomvc.com">TodoMVC</a></p>
     </footer>
@@ -57,6 +47,10 @@ export default {
   },
   data () {
     return {
+      filters: ['all', 'active', 'completed'],
+      toggleAllFlag: false,
+      newTodoText: '',
+      filter: 'all',
       todos: [
         {
           text: 'foobar',
@@ -65,9 +59,46 @@ export default {
       ]
     }
   },
-  methods: {
-    markAllAsCompleted () {
+  computed: {
+    anyCompleted () {
+      return this.todos.filter(todo => todo.completed).length > 0
+    },
+    filteredTodos () {
+      if (this.filter === 'all') { return this.todos }
+      let completed = this.filter === 'completed'
 
+      return this.todos.filter(todo => todo.completed === completed)
+    }
+  },
+  methods: {
+    toggleAll (e) {
+      const value = !this.toggleAllFlag
+      this.todos.forEach(function (todo) {
+        todo.completed = value
+      })
+    },
+    deleteTodo (i) {
+      this.todos.splice(i, 1)
+    },
+    clearCompleted () {
+      this.todos = this.todos.filter(todo => !todo.completed)
+    },
+    addTodo () {
+      if (this.newTodoText === '') { return }
+
+      this.todos.push({
+        text: this.newTodoText,
+        completed: false
+      })
+
+      this.newTodoText = ''
+    }
+  },
+  filters: {
+    capitalize: function (value) {
+      if (!value) return ''
+      value = value.toString()
+      return value.charAt(0).toUpperCase() + value.slice(1)
     }
   }
 }
