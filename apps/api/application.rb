@@ -2,6 +2,12 @@ require 'hanami/helpers'
 require 'hanami/assets'
 
 module Api
+  CORS_HEADERS = {
+    "Access-Control-Allow-Origin" => "*",
+    "Access-Control-Allow-Methods" => %w{GET POST PUT PATCH OPTIONS DELETE}.join(','),
+    "Access-Control-Allow-Headers" => %w{Content-Type Accept}.join(',')
+  }
+
   class Application < Hanami::Application
     configure do
       root __dir__
@@ -36,7 +42,7 @@ module Api
         media-src 'self'
       }
 
-      controller.default_headers "Access-Control-Allow-Origin" => "*"
+      controller.default_headers(CORS_HEADERS)
 
       controller.prepare do
         # include MyAuthentication # included in all the actions

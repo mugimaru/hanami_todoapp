@@ -1,7 +1,7 @@
 <template>
 <li :class="{ completed: todo.completed, editing: edit }" @dblclick="startEdit">
   <div class="view">
-    <input class="toggle" type="checkbox" v-model="todo.completed">
+    <input class="toggle" type="checkbox" v-model="todo.completed" @click="toggleCompleted">
     <label>{{todo.text}}</label>
     <button class="destroy" @click="$emit('delete')"></button>
   </div>
@@ -27,11 +27,13 @@ export default {
       this.editText = this.todo.text
       this.edit = true
     },
+    toggleCompleted () {
+      this.$emit('updated', { completed: !this.todo.completed })
+    },
     doneEdit () {
-      this.todo.text = this.editText
+      this.$emit('updated', { text: this.editText })
       this.edit = false
       this.editText = ''
-      this.$emit('done-edit')
     },
     cancelEdit () {
       this.edit = false

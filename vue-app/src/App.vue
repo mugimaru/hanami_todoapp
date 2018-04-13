@@ -15,7 +15,7 @@
             :key="i"
             :todo="todo"
             @delete="deleteTodo(todo)"
-            @done-edit="updateTodo(todo)"/>
+            @updated="updateTodo(todo, $event)"/>
         </ul>
       </section>
 
@@ -59,12 +59,7 @@ export default {
       filter: 'all',
       toggleAllFlag: false,
       newTodo: '',
-      todos: [
-        {
-          text: 'foobar',
-          completed: false
-        }
-      ]
+      todos: []
     }
   },
   computed: {
@@ -94,15 +89,27 @@ export default {
     addTodo () {
       if (this.newTodo === '') { return }
 
-      this.todos.push({
-        text: this.newTodo,
-        completed: false
-      })
+      this.axios.post('todos', {text: this.newTodo})
+        .then(response => {
+          this.todos.push(response.data.data)
+        })
+        .catch(e => {
+          console.log(e)
+        })
 
       this.newTodo = ''
     },
-    updateTodo (todo) {
-      console.log(`Done edit ${todo.text}`)
+    updateTodo (todo, params) {
+      this.axios.patch(`todos/${todo.id}`, params)
+        .then(response => {
+          const index = this.todos.findIndex(item => item.id === todo.id)
+          if (index >= 0) {
+            this.todos.splice(index, 1, response.data.data)
+          }
+        })
+        .catch(e => {
+          console.log(e)
+        })
     }
   },
   filters: {
@@ -114,6 +121,15 @@ export default {
     pluralize: function (n) {
       return n === 1 ? 'item' : 'items'
     }
+  },
+  created () {
+    this.axios.get('todos')
+      .then(response => {
+        this.todos = response.data.data
+      })
+      .catch(e => {
+        console.log(e)
+      })
   }
 }
 </script>

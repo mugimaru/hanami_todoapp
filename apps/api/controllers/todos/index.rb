@@ -4,7 +4,7 @@ module Api::Controllers::Todos
 
     def call(params)
       repo = TodoRepository.new
-      todos = repo.active.to_a
+      todos = repo.newest_first.to_a
 
       self.format = :json
       status 201, JSON.dump(data: todos.map(&:to_hash))
