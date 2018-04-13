@@ -8,7 +8,7 @@ module Api::Controllers::Todos
       optional(:completed).filled(:bool?)
     end
 
-    def initialize(interactor: UpdateTodo.new)
+    def initialize(interactor: ::Todos::Update.new)
       @interactor = interactor
     end
 

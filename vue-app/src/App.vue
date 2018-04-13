@@ -76,15 +76,38 @@ export default {
   methods: {
     toggleAll (e) {
       const value = !this.toggleAllFlag
-      this.todos.forEach(function (todo) {
-        todo.completed = value
-      })
+      const ids = this.todos.map(t => t.id)
+
+      this.axios.patch('todos/batch/set_completed', {ids: ids, completed: value})
+        .then(response => {
+          this.todos.forEach(function (todo) {
+            if (ids.indexOf(todo.id) !== -1) { todo.completed = value }
+          })
+        })
+        .catch(e => {
+          console.log(e)
+        })
     },
     deleteTodo (todo) {
-      this.todos.splice(this.todos.indexOf(todo), 1)
+      this.axios.delete('todos/batch', { data: { ids: [todo.id] } })
+        .then(response => {
+          this.todos.splice(this.todos.indexOf(todo), 1)
+        })
+        .catch(e => {
+          console.log(e)
+        })
     },
     clearCompleted () {
-      this.todos = this.todos.filter(todo => !todo.completed)
+      const ids = this.todos.filter(todo => todo.completed).map(todo => todo.id)
+      if (ids.length === 0) { return }
+
+      this.axios.delete('todos/batch', { data: { ids: ids } })
+        .then(response => {
+          this.todos = this.todos.filter(todo => ids.indexOf(todo.id) === -1)
+        })
+        .catch(e => {
+          console.log(e)
+        })
     },
     addTodo () {
       if (this.newTodo === '') { return }

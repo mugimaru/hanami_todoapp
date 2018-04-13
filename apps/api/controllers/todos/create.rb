@@ -6,7 +6,7 @@ module Api::Controllers::Todos
       required(:text).filled
     end
 
-    def initialize(interactor: CreateTodo.new)
+    def initialize(interactor: ::Todos::Create.new)
       @interactor = interactor
     end
 
