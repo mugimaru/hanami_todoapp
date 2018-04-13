@@ -36,6 +36,8 @@ module Api
         media-src 'self'
       }
 
+      controller.default_headers "Access-Control-Allow-Origin" => "*"
+
       controller.prepare do
         # include MyAuthentication # included in all the actions
         # before :authenticate!    # run an authentication before callback
