@@ -3,22 +3,30 @@
     <section class="todoapp">
       <header class="header">
         <h1>todos</h1>
-        <input class="new-todo" placeholder="What needs to be done?" autofocus v-model="newTodoText" @keydown.enter="addTodo">
+        <input class="new-todo" placeholder="What needs to be done?" autofocus v-model="newTodo" @keydown.enter="addTodo">
       </header>
 
       <section class="main" v-show="todos.length > 0">
         <input id="toggle-all" class="toggle-all" type="checkbox" v-model="toggleAllFlag" @click="toggleAll">
         <label for="toggle-all">Mark all as complete</label>
         <ul class="todo-list">
-          <todo-item v-for="(todo, i) in filteredTodos" :key="i" :todo="todo" @delete="deleteTodo(i)" />
+          <todo-item
+            v-for="(todo, i) in filteredTodos"
+            :key="i"
+            :todo="todo"
+            @delete="deleteTodo(todo)"
+            @done-edit="updateTodo(todo)"/>
         </ul>
       </section>
 
       <footer class="footer" v-show="todos.length > 0">
-        <span class="todo-count"><strong>{{ todos.length }}</strong> item left</span>
+        <span class="todo-count">
+          <strong>{{ todos.length }}</strong> {{ todos.length | pluralize }} left
+        </span>
+
         <ul class="filters">
           <li v-for="f in filters" :key="f">
-            <a :class="filter == f ? 'selected' : ''" href="#" @click.stop="filter = f">
+            <a :class="{ selected: (filter == f) }" href="#" @click.stop="filter = f">
               {{ f | capitalize }}
             </a>
           </li>
@@ -30,7 +38,7 @@
     <footer class="info">
       <p>Double-click to edit a todo</p>
       <p>Template by <a href="http://sindresorhus.com">Sindre Sorhus</a></p>
-      <p>Created by <a href="http://todomvc.com">you</a></p>
+      <p>Created by <a href="https://github.com/mugimaru73">Nikita Babushkin</a></p>
       <p>Part of <a href="http://todomvc.com">TodoMVC</a></p>
     </footer>
   </div>
@@ -48,9 +56,9 @@ export default {
   data () {
     return {
       filters: ['all', 'active', 'completed'],
-      toggleAllFlag: false,
-      newTodoText: '',
       filter: 'all',
+      toggleAllFlag: false,
+      newTodo: '',
       todos: [
         {
           text: 'foobar',
@@ -77,21 +85,24 @@ export default {
         todo.completed = value
       })
     },
-    deleteTodo (i) {
-      this.todos.splice(i, 1)
+    deleteTodo (todo) {
+      this.todos.splice(this.todos.indexOf(todo), 1)
     },
     clearCompleted () {
       this.todos = this.todos.filter(todo => !todo.completed)
     },
     addTodo () {
-      if (this.newTodoText === '') { return }
+      if (this.newTodo === '') { return }
 
       this.todos.push({
-        text: this.newTodoText,
+        text: this.newTodo,
         completed: false
       })
 
-      this.newTodoText = ''
+      this.newTodo = ''
+    },
+    updateTodo (todo) {
+      console.log(`Done edit ${todo.text}`)
     }
   },
   filters: {
@@ -99,6 +110,9 @@ export default {
       if (!value) return ''
       value = value.toString()
       return value.charAt(0).toUpperCase() + value.slice(1)
+    },
+    pluralize: function (n) {
+      return n === 1 ? 'item' : 'items'
     }
   }
 }

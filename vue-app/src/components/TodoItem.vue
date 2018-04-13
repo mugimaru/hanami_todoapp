@@ -5,7 +5,7 @@
     <label>{{todo.text}}</label>
     <button class="destroy" @click="$emit('delete')"></button>
   </div>
-  <input class="edit" v-model="editText" @keyup.enter="doneEdit" @keyup.esc="cancelEdit">
+  <input class="edit" v-todo-focus="edit" v-model="editText" @blur="doneEdit" @keyup.enter="doneEdit" @keyup.esc="cancelEdit">
 </li>
 </template>
 
@@ -31,10 +31,18 @@ export default {
       this.todo.text = this.editText
       this.edit = false
       this.editText = ''
+      this.$emit('done-edit')
     },
     cancelEdit () {
       this.edit = false
       this.editText = ''
+    }
+  },
+  directives: {
+    'todo-focus': function (el, binding) {
+      if (binding.value) {
+        el.focus()
+      }
     }
   }
 }
